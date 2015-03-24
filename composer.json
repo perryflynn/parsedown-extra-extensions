@@ -1,0 +1,13 @@
+{
+    "require": {
+        "twig/twig": ">=1.8,<2.0-dev",
+        "endroid/qrcode": "1.5.0",
+        "erusev/parsedown": "1.5.1",
+        "erusev/parsedown-extra": "0.7.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "PerryFlynn": "src/"
+        }
+    }
+}

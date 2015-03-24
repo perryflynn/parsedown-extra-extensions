@@ -1,0 +1,99 @@
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
+@import url(http://fonts.googleapis.com/css?family=Montserrat:400,700);
+
+body {
+   text-align:center;
+   font-size:12pt;
+   background-color:#006087;
+   font-family:'Open Sans', Arial;
+}
+
+h1, h2, h3, h4, h5 {
+   font-family: 'Montserrat', Arial;
+}
+
+.outline {
+   width:800px;
+   margin:20px auto;
+   padding:20px;
+   text-align:left;
+   border:3px solid #a70011;
+   border-radius:10px;
+   background-color:rgba(255,255,255,.8);
+   box-shadow: -3px 0px 8px white, 0px 3px 8px white, 3px 0px 8px white, 0px -3px 8px white;
+}
+
+hr {
+   height:3px;
+   background-color:#a70011;
+   border:0px none;
+   padding:0px;
+   margin:0px;
+}
+
+dl dt {
+   font-weight:bold;
+   color:#a70011;
+}
+
+dl dd {
+   margin:0px 0px 3px 0px;
+   padding:0px;
+}
+
+/* Tables */
+/* http://www.mediaevent.de/2012/08/html-table-border-radius-border-collapse/ */
+
+/* Tables */
+table.lines {
+   border-radius: 6px;
+   border-spacing: 0px;
+   border-collapse: separate;
+   margin:0px 0px 20px 0px;
+}
+
+table.lines td,
+table.lines th {
+   padding: 5px 12px;
+   border-bottom: 1px solid #a70011;
+   border-right: 1px solid #a70011;
+   font-family:Ubuntu;
+}
+
+table.lines td {
+   font-size:.9em;
+}
+
+table.lines th {
+   background: #a70011;
+   color: white;
+   text-align:left;
+}
+
+table.lines tr:last-child td:first-child {
+    border-bottom-left-radius:6px;
+}
+
+table.lines tr:last-child td:last-child {
+    border-bottom-right-radius:6px;
+}
+
+table.lines tr th:first-child,
+table.lines tr td:first-child {
+   border-left: 1px solid #a70011;
+}
+
+table.lines tr:first-child th,
+table.lines tr:first-child td {
+   border-top: 1px solid #a70011;
+}
+
+table.lines thead tr:first-child :first-child {
+    border-top-left-radius:6px
+}
+
+table.lines thead tr:first-child :last-child {
+    border-top-right-radius:6px
+}
+

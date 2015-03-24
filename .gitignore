@@ -1,0 +1,5 @@
+/vendor
+/nbproject
+/composer.lock
+/examples/*/private-*
+/examples/build

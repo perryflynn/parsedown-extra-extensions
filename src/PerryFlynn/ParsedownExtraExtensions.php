@@ -210,6 +210,10 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
             if(isset($widths[$index]) && !is_null($widths[$index]))
             {
+               if(!isset($HeaderElement['attributes']['style']))
+               {
+                  $HeaderElement['attributes']['style']="";
+               }
                $HeaderElement['attributes']['style'] .= 'width:'.$widths[$index].'%;';
             }
 
@@ -222,7 +226,9 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             'element' => array(
                'name' => 'table',
                'handler' => 'elements',
+                'attributes'=>array('class'=>'lines'),
             ),
+
          );
 
          if($usewidth===true)
