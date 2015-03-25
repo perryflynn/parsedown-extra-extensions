@@ -38,6 +38,13 @@ $md->setBreaksEnabled(false)
 $loader = new Twig_Loader_Filesystem(__DIR__);
 $twig = new Twig_Environment($loader);
 
+//--> Clean
+$buildfiles = glob(CFG_BUILD."*.html");
+foreach($buildfiles as $buildfile)
+{
+   @unlink($buildfile);
+}
+
 //--> Build markdown files
 $mdfiles = glob(CFG_MD."*.md");
 foreach($mdfiles as $mdfile)

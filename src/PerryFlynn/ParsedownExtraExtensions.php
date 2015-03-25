@@ -275,23 +275,26 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             return;
         }
 
-        // Get Link URL with title
+        // Get Link URL
         if (strpos($remainder, "(")===0 && strpos($remainder, ")")!==false && strpos($remainder, ")")>1)
         {
 
             $linkcontent = substr($remainder, 1, strpos($remainder, ")")-1);
             $extent += strlen($linkcontent)+2;
 
+            // Check for title attribute
             if (strpos($linkcontent, '"')!==false && strpos($linkcontent, '"', strpos($linkcontent, '"')+1)!==false)
             {
-               $start = strpos($linkcontent, '"');
-               $end = strpos($linkcontent, '"', $start+1);
-               $Element['attributes']['title'] = substr($linkcontent, $start+1, $end-$start-1);
-               $linkcontent = substr($linkcontent, 0, $start);
+                $start = strpos($linkcontent, '"');
+                $end = strpos($linkcontent, '"', $start+1);
+                $Element['attributes']['title'] = substr($linkcontent, $start+1, $end-$start-1);
+                $linkcontent = substr($linkcontent, 0, $start);
             }
 
             $Element['attributes']['href'] = trim($linkcontent);
         }
+
+        // Definition
         else
         {
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches))
@@ -319,14 +322,11 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
         $Element['attributes']['href'] = str_replace(array('&', '<'), array('&amp;', '&lt;'), $Element['attributes']['href']);
 
-        $Element['attributes']['target'] = "_blank";
-
         return array(
             'extent' => $extent,
             'element' => $Element,
         );
     }
-
 
 
 }
