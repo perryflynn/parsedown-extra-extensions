@@ -79,18 +79,6 @@ class ParsedownExtraExtensions extends \ParsedownExtra
    }
 
 
-   protected function inlineLink($Excerpt)
-   {
-      if (!preg_match('/\[((?:[^][]|(?R))*)\]/', $Excerpt['text']))
-      {
-         return;
-      }
-      $link = parent::inlineLink($Excerpt);
-      $link['element']['attributes']['target'] = "_blank";
-      return $link;
-   }
-
-
    protected function inlineUrl($Excerpt)
    {
       if ($this->urlsLinked !== true or ! isset($Excerpt['text'][2]) or $Excerpt['text'][2] !== '/')
@@ -256,6 +244,88 @@ class ParsedownExtraExtensions extends \ParsedownExtra
          return $Block;
       }
    }
+
+    protected function inlineLink($Excerpt)
+    {
+        $Element = array(
+            'name' => 'a',
+            'handler' => 'line',
+            'text' => null,
+            'attributes' => array(
+                'href' => null,
+                'title' => null,
+            ),
+        );
+
+        $extent = 0;
+
+        $remainder = $Excerpt['text'];
+
+        // Get Link text
+        if (preg_match('/\[((?:[^][]|(?R))*)\]/', $remainder, $matches))
+        {
+            $Element['text'] = $matches[1];
+
+            $extent += strlen($matches[0]);
+
+            $remainder = substr($remainder, $extent);
+        }
+        else
+        {
+            return;
+        }
+
+        // Get Link URL with title
+        if (strpos($remainder, "(")===0 && strpos($remainder, ")")!==false && strpos($remainder, ")")>1)
+        {
+
+            $linkcontent = substr($remainder, 1, strpos($remainder, ")")-1);
+            $extent += strlen($linkcontent)+2;
+
+            if (strpos($linkcontent, '"')!==false && strpos($linkcontent, '"', strpos($linkcontent, '"')+1)!==false)
+            {
+               $start = strpos($linkcontent, '"');
+               $end = strpos($linkcontent, '"', $start+1);
+               $Element['attributes']['title'] = substr($linkcontent, $start+1, $end-$start-1);
+               $linkcontent = substr($linkcontent, 0, $start);
+            }
+
+            $Element['attributes']['href'] = trim($linkcontent);
+        }
+        else
+        {
+            if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches))
+            {
+                $definition = $matches[1] ? $matches[1] : $Element['text'];
+                $definition = strtolower($definition);
+
+                $extent += strlen($matches[0]);
+            }
+            else
+            {
+                $definition = strtolower($Element['text']);
+            }
+
+            if ( ! isset($this->DefinitionData['Reference'][$definition]))
+            {
+                return;
+            }
+
+            $Definition = $this->DefinitionData['Reference'][$definition];
+
+            $Element['attributes']['href'] = $Definition['url'];
+            $Element['attributes']['title'] = $Definition['title'];
+        }
+
+        $Element['attributes']['href'] = str_replace(array('&', '<'), array('&amp;', '&lt;'), $Element['attributes']['href']);
+
+        $Element['attributes']['target'] = "_blank";
+
+        return array(
+            'extent' => $extent,
+            'element' => $Element,
+        );
+    }
 
 
 
