@@ -1,6 +1,6 @@
 
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
-@import url(http://fonts.googleapis.com/css?family=Montserrat:400,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
 
 body {
    text-align:center;
@@ -51,6 +51,15 @@ table.lines {
    border-spacing: 0px;
    border-collapse: separate;
    margin:0px 0px 20px 0px;
+   font-family:'Open Sans';
+}
+
+table.lines thead {
+   background-color:rgba(0, 144, 203, 0.41);
+}
+
+table.lines tbody {
+   background-color:rgba(0, 193, 60, 0.41);
 }
 
 table.lines td,
@@ -58,7 +67,6 @@ table.lines th {
    padding: 5px 12px;
    border-bottom: 1px solid #a70011;
    border-right: 1px solid #a70011;
-   font-family:Ubuntu;
 }
 
 table.lines td {

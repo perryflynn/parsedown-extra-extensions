@@ -38,18 +38,34 @@ $md->setBreaksEnabled(false)
 $loader = new Twig_Loader_Filesystem(__DIR__);
 $twig = new Twig_Environment($loader);
 
-//--> Clean
+//--> Cleanup
 $buildfiles = glob(CFG_BUILD."*.html");
 foreach($buildfiles as $buildfile)
 {
    @unlink($buildfile);
 }
 
+//--> Get files
+$mdfiles = array();
+
+// One file from cmd argument
+if(isset($argv[1]) && is_file(CFG_MD.$argv[1]))
+{
+   line("Render only given files");
+   $mdfiles[] = CFG_MD.$argv[1];
+}
+// All files in markdown folder
+else
+{
+   line("Scan for markdown files");
+   $mdfiles = glob(CFG_MD."*.md");
+   line("Found ".count($mdfiles)." files");
+}
+
 //--> Build markdown files
-$mdfiles = glob(CFG_MD."*.md");
 foreach($mdfiles as $mdfile)
 {
-   line("File: ".$mdfile);
+   line("Render ".$mdfile);
 
    $html = $twig->render('layout.html.twig', array(
        "title" => basename($mdfile),
@@ -57,7 +73,8 @@ foreach($mdfiles as $mdfile)
        "content" => $md->parse(file_get_contents($mdfile)),
    ));
 
-   file_put_contents(CFG_BUILD.basename($mdfile).".html", $html);
+   $target = CFG_BUILD.basename($mdfile).".html";
+   file_put_contents($target, $html);
+   line("Saved as ".$target);
 
 }
-

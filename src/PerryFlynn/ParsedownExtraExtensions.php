@@ -26,6 +26,11 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
    protected function inlineFontAwesome($Excerpt)
    {
+      /**
+       * Inline font awesome icons
+       * Usage: @star-o@ = <i class="fa fa-star-o"></i>
+       */
+   
       $matches = array();
       if (preg_match('/@([a-z\-]+)@/', $Excerpt['text'], $matches))
       {
@@ -46,9 +51,21 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
    protected function inlineManualLineBreak($Excerpt)
    {
+      /**
+       * Manual line break
+       * Usage \n = <br>; \\n = \n
+       */
+   
       $matches = array();
-      if (preg_match("/\\\\n/", $Excerpt['text'], $matches))
+      // Find \n but not \\n
+      if (preg_match('/((?:([\\\]))?\\\n)/', $Excerpt['text'], $matches)===1)
       {
+         // If \\n abort here
+         if(isset($matches[2]) && $matches[2]=="\\")
+         {
+            return;
+         }
+         
          return array(
             'extent' => strlen($matches[0]),
             'element' => array(
@@ -62,6 +79,10 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
    protected function inlineColoredText($Excerpt)
    {
+      /**
+       * Colored text (grabbed from parsedown wiki)
+       */
+       
       if (preg_match('/^{c:([#\w]\w+)}([^{]+){\/c}/', $Excerpt['text'], $matches))
       {
          return array(
@@ -106,23 +127,37 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
    protected function blockTable($Line, array $Block = null)
    {
-      if ( ! isset($Block) or isset($Block['type']) or isset($Block['interrupted']))
-      {
+      /**
+       * Better tables
+       * - Tables without header
+       * - Change table and column width
+       * see examples/markdown/tables.md
+       */
+       
+       echo "\n-------------------------------------------------------\n";
+       var_dump($Line);
+       var_dump($Block);
+       return;
+       
+       if(isset($Block['interrupted']) && $Block['interrupted'])
+       {
          return;
-      }
-
-      if (strpos($Block['element']['text'], '|') !== false && /*chop($Line['text'], ' -:|') === ''*/ preg_match('/^[\s\-:0-9\|]+$/', $Line['text'])===1)
+       }
+       
+      $alignments = array();
+      $usewidth=false;
+      $totalwidth="100";
+      $widths = array();
+      
+      //--> Parse dividers
+      if (preg_match('/^[\s\-:0-9\|]+$/', $Line['text'])===1)
       {
-         $alignments = array();
-
-         $usewidth=false;
-         $totalwidth="100";
-         $widths = array();
 
          $divider = $Line['text'];
          $divider = trim($divider);
          $divider = trim($divider, '|');
 
+         // Table width
          $widthmatch = array();
          if(preg_match("/\|\|([0-9]+)$/", $divider, $widthmatch)===1)
          {
@@ -131,7 +166,6 @@ class ParsedownExtraExtensions extends \ParsedownExtra
          }
 
          $dividerCells = explode('|', $divider);
-
          foreach ($dividerCells as $dividerCell)
          {
             $dividerCell = trim($dividerCell);
@@ -141,8 +175,8 @@ class ParsedownExtraExtensions extends \ParsedownExtra
                continue;
             }
 
+            // Alignment
             $alignment = null;
-
             if ($dividerCell[0] === ':')
             {
                $alignment = 'left';
@@ -155,6 +189,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
 
             $alignments []= $alignment;
 
+            // Column width
             $widthmatch = array();
             if(preg_match("/([0-9\.]+)/", $dividerCell, $widthmatch)===1)
             {
@@ -167,11 +202,60 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             }
 
          }
+         
+      }
+      else
+      {
+         return;
+      }
+      
+      // Create new Block element
+      $NewBlock = array(
+         'alignments' => $alignments,
+         'usewidth' => $usewidth,
+         'widths' => $widths,
+         'identified' => true,
+         'element' => array(
+            'name' => 'table',
+            'handler' => 'elements',
+            'attributes'=>array('class'=>'lines'),
+         ),
+      );
+      
+      // Return old block element, if no table begin
+      $headerarraypos = 0;
+      if ( ! isset($Block) or isset($Block['type']) or isset($Block['interrupted']))
+      {
+         $headerarraypos++;
+         $NewBlock['element']['text'] []= $Block['element'];
+      }
 
+      // Table header
+      $NewBlock['element']['text'] []= array(
+         'name' => 'thead',
+         'handler' => 'elements',
+      );
+
+      // Table body
+      $NewBlock['element']['text'] []= array(
+         'name' => 'tbody',
+         'handler' => 'elements',
+         'text' => array(),
+      );
+
+      // Table width
+      if($usewidth===true)
+      {
+         $NewBlock['element']['attributes']['style'] = 'width:'.$totalwidth.'%;';
+      }
+
+      // Header line
+      if (strpos($Block['element']['text'], '|') !== false)
+      {
          $HeaderElements = array();
 
          $header = $Block['element']['text'];
-
+         
          $header = trim($header);
          $header = trim($header, '|');
 
@@ -187,6 +271,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
                'handler' => 'line',
             );
 
+            // Header cell alignment
             if (isset($alignments[$index]))
             {
                $alignment = $alignments[$index];
@@ -196,6 +281,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
                );
             }
 
+            // Header cell width
             if(isset($widths[$index]) && !is_null($widths[$index]))
             {
                if(!isset($HeaderElement['attributes']['style']))
@@ -208,45 +294,95 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             $HeaderElements []= $HeaderElement;
          }
 
-         $Block = array(
-            'alignments' => $alignments,
-            'identified' => true,
-            'element' => array(
-               'name' => 'table',
-               'handler' => 'elements',
-                'attributes'=>array('class'=>'lines'),
-            ),
-
-         );
-
-         if($usewidth===true)
-         {
-            $Block['element']['attributes']['style'] = 'width:'.$totalwidth.'%;';
-         }
-
-         $Block['element']['text'] []= array(
-            'name' => 'thead',
-            'handler' => 'elements',
-         );
-
-         $Block['element']['text'] []= array(
-            'name' => 'tbody',
-            'handler' => 'elements',
-            'text' => array(),
-         );
-
-         $Block['element']['text'][0]['text'] []= array(
+         // Add header to new block array
+         $NewBlock['element']['text'][$headerarraypos]['text'] []= array(
             'name' => 'tr',
             'handler' => 'elements',
             'text' => $HeaderElements,
          );
 
-         return $Block;
+         
       }
+      
+      return $NewBlock;
    }
+   
 
+
+    protected function blockTableContinue($Line, array $Block)
+    {
+      /**
+       * Better tables
+       * - Tables without header
+       * - Change table and column width
+       * see examples/markdown/tables.md
+       */
+      
+        if (isset($Block['interrupted']))
+        {
+            return;
+        }
+
+        if ($Line['text'][0] === '|' or strpos($Line['text'], '|'))
+        {
+            $Elements = array();
+
+            $row = $Line['text'];
+
+            $row = trim($row);
+            $row = trim($row, '|');
+
+            preg_match_all('/(?:(\\\\[|])|[^|`]|`[^`]+`|`)+/', $row, $matches);
+
+            foreach ($matches[0] as $index => $cell)
+            {
+                $cell = trim($cell);
+
+                $Element = array(
+                    'name' => 'td',
+                    'handler' => 'line',
+                    'text' => $cell,
+                );
+
+                if (isset($Block['alignments'][$index]))
+                {
+                    $Element['attributes'] = array(
+                        'style' => 'text-align: '.$Block['alignments'][$index].';',
+                    );
+                }
+
+               if($Block['usewidth']==true && isset($Block['widths'][$index]) && !is_null($Block['widths']))
+               {
+                  if(!isset($Element['attributes']['style']))
+                  {
+                     $Element['attributes']['style']="";
+                  }
+                  $Element['attributes']['style'] .= 'width:'.$Block['widths'][$index].'%;';
+               }
+
+                $Elements []= $Element;
+            }
+
+            $Element = array(
+                'name' => 'tr',
+                'handler' => 'elements',
+                'text' => $Elements,
+            );
+
+            $Block['element']['text'][1]['text'] []= $Element;
+
+            return $Block;
+        }
+    }
+   
+   
     protected function inlineLink($Excerpt)
     {
+      /**
+       * Removed regex and use string functions to
+       * support very long urls such as data uris
+       */
+    
         $Element = array(
             'name' => 'a',
             'handler' => 'line',
