@@ -54,14 +54,6 @@ table.lines {
    font-family:'Open Sans';
 }
 
-table.lines thead {
-   background-color:rgba(0, 144, 203, 0.41);
-}
-
-table.lines tbody {
-   background-color:rgba(0, 193, 60, 0.41);
-}
-
 table.lines td,
 table.lines th {
    padding: 5px 12px;

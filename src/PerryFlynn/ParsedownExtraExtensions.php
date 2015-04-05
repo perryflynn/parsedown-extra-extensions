@@ -30,7 +30,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
        * Inline font awesome icons
        * Usage: @star-o@ = <i class="fa fa-star-o"></i>
        */
-   
+
       $matches = array();
       if (preg_match('/@([a-z\-]+)@/', $Excerpt['text'], $matches))
       {
@@ -55,7 +55,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
        * Manual line break
        * Usage \n = <br>; \\n = \n
        */
-   
+
       $matches = array();
       // Find \n but not \\n
       if (preg_match('/((?:([\\\]))?\\\n)/', $Excerpt['text'], $matches)===1)
@@ -65,7 +65,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
          {
             return;
          }
-         
+
          return array(
             'extent' => strlen($matches[0]),
             'element' => array(
@@ -82,7 +82,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
       /**
        * Colored text (grabbed from parsedown wiki)
        */
-       
+
       if (preg_match('/^{c:([#\w]\w+)}([^{]+){\/c}/', $Excerpt['text'], $matches))
       {
          return array(
@@ -129,26 +129,20 @@ class ParsedownExtraExtensions extends \ParsedownExtra
    {
       /**
        * Better tables
-       * - Tables without header
        * - Change table and column width
        * see examples/markdown/tables.md
        */
-       
-       echo "\n-------------------------------------------------------\n";
-       var_dump($Line);
-       var_dump($Block);
-       return;
-       
+
        if(isset($Block['interrupted']) && $Block['interrupted'])
        {
          return;
        }
-       
+
       $alignments = array();
       $usewidth=false;
       $totalwidth="100";
       $widths = array();
-      
+
       //--> Parse dividers
       if (preg_match('/^[\s\-:0-9\|]+$/', $Line['text'])===1)
       {
@@ -202,13 +196,13 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             }
 
          }
-         
+
       }
       else
       {
          return;
       }
-      
+
       // Create new Block element
       $NewBlock = array(
          'alignments' => $alignments,
@@ -221,7 +215,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             'attributes'=>array('class'=>'lines'),
          ),
       );
-      
+
       // Return old block element, if no table begin
       $headerarraypos = 0;
       if ( ! isset($Block) or isset($Block['type']) or isset($Block['interrupted']))
@@ -255,7 +249,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
          $HeaderElements = array();
 
          $header = $Block['element']['text'];
-         
+
          $header = trim($header);
          $header = trim($header, '|');
 
@@ -301,12 +295,12 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             'text' => $HeaderElements,
          );
 
-         
+
       }
-      
+
       return $NewBlock;
    }
-   
+
 
 
     protected function blockTableContinue($Line, array $Block)
@@ -317,7 +311,7 @@ class ParsedownExtraExtensions extends \ParsedownExtra
        * - Change table and column width
        * see examples/markdown/tables.md
        */
-      
+
         if (isset($Block['interrupted']))
         {
             return;
@@ -374,15 +368,15 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             return $Block;
         }
     }
-   
-   
+
+
     protected function inlineLink($Excerpt)
     {
       /**
        * Removed regex and use string functions to
        * support very long urls such as data uris
        */
-    
+
         $Element = array(
             'name' => 'a',
             'handler' => 'line',

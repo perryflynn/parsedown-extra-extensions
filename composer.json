@@ -1,9 +1,24 @@
 {
+    "name": "perryflynn/parsedown-extra-extensions",
+    "description": "My parsedown-extra extensions",
+    "keywords": ["markdown", "markdown extra", "parser", "parsedown"],
+    "homepage": "https://github.com/perryflynn/parsedown-extra-extensions",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christian Blechert",
+            "email": "christian@blechert.name",
+            "homepage": "http://blechert.name"
+        }
+    ],
     "require": {
-        "twig/twig": ">=1.8,<2.0-dev",
-        "endroid/qrcode": "1.5.0",
         "erusev/parsedown": "1.5.1",
         "erusev/parsedown-extra": "0.7.0"
+    },
+    "require-dev": {
+        "twig/twig": ">=1.8,<2.0-dev",
+        "endroid/qrcode": "1.5.0"
     },
     "autoload": {
         "psr-0": {
