@@ -212,7 +212,6 @@ class ParsedownExtraExtensions extends \ParsedownExtra
          'element' => array(
             'name' => 'table',
             'handler' => 'elements',
-            'attributes'=>array('class'=>'lines'),
          ),
       );
 
@@ -375,6 +374,9 @@ class ParsedownExtraExtensions extends \ParsedownExtra
       /**
        * Removed regex and use string functions to
        * support very long urls such as data uris
+       * - Added class attribute
+       * - Added target attribute
+       * [link name](url "title" "classname" "_blank")
        */
 
         $Element = array(
@@ -415,10 +417,44 @@ class ParsedownExtraExtensions extends \ParsedownExtra
             // Check for title attribute
             if (strpos($linkcontent, '"')!==false && strpos($linkcontent, '"', strpos($linkcontent, '"')+1)!==false)
             {
-                $start = strpos($linkcontent, '"');
-                $end = strpos($linkcontent, '"', $start+1);
-                $Element['attributes']['title'] = substr($linkcontent, $start+1, $end-$start-1);
-                $linkcontent = substr($linkcontent, 0, $start);
+               $start = strpos($linkcontent, '"');
+
+               $attstart = $start-1;
+               $attvalues = array();
+               while(strpos($linkcontent, '"', $attstart+1)!==false && strpos($linkcontent, '"', strpos($linkcontent, '"', $attstart+1)+1)!==false)
+               {
+                  $tempstart = strpos($linkcontent, '"', $attstart+1);
+                  $tempend = strpos($linkcontent, '"', $tempstart+1);
+                  if($tempstart>0 && $tempend>0)
+                  {
+                     $attvalues[] = trim(substr($linkcontent, $tempstart+1, $tempend-$tempstart-1));
+                     $attstart = $tempend;
+                  }
+                  else
+                  {
+                     break;
+                  }
+               }
+
+               // Title attribute
+               if(isset($attvalues[0]) && !empty($attvalues[0]))
+               {
+                  $Element['attributes']['title'] = $attvalues[0];
+               }
+
+               // Target attribute
+               if(isset($attvalues[2]) && !empty($attvalues[2]))
+               {
+                  $Element['attributes']['target'] = $attvalues[2];
+               }
+
+               // Class attribute
+               if(isset($attvalues[1]) && !empty($attvalues[1]))
+               {
+                  $Element['attributes']['class'] = $attvalues[1];
+               }
+
+               $linkcontent = substr($linkcontent, 0, $start);
             }
 
             $Element['attributes']['href'] = trim($linkcontent);
